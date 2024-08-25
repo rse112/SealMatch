@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Personality Test</title>
+    <style>
+  
+  @import url('https://fonts.googleapis.com/css2?family=Cute+Font&display=swap');
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-image : url('https://cdn.discordapp.com/attachments/1008571096884334623/1125056797040980070/whcksrb112_There_arent_many_mountains_and_its_made_up_of_ice_an_d3d5422e-f699-49aa-a55e-7c4903ccc78d.png');
+        }
+        .container {
+        max-width: 800px;
+        width: 90%;
+        padding: 20px;
+        background-color: #F8F8FF;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    #chat-window {
+    /* 기존 스타일 유지 */
+    height: 600px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    
+    /* 수정된 스타일 */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+
+    .message {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 10px;
+    }
+
+    .message.user-message .message-bubble {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 70%;
+    word-wrap: break-word;
+    align-self: flex-end; /* 오른쪽 정렬 */
+}
+
+.message.bot-message .message-bubble {
+    /* 상대방 대화 스타일 */
+    background-color: #eee;
+    color: #333;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 100%;
+    word-wrap: break-word;
+}
+    #user-input-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        width: 70%;
+    }
+
+    .button {
+        width: 100%;
+        height: 50px;
+        border: none;
+        color: #fff;
+        background-color: #007bff;
+        border-radius: 6px;
+        margin-left: 2%;
+        margin-right: 2%;
+        cursor: pointer;
+    }
+
+    .button:hover {
+        background-color: #0056b3;
+    }
+
+    /* 로딩 스피너 스타일 */
+    .loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #007bff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* 이미지 스타일 */
+    .image-container {
+        text-align: center;
+    }
+
+    .image-container img {
+        max-width: 300px;
+        max-height: 100%;
+    }
+    #start-message {
+    /* 기존 스타일 유지 */
+    background-color: #eee;
+    color: #333;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 25%;
+    word-wrap: break-word;
+}
+  h1 {
+    font-family: 'Cute Font', cursive;
+}
+</style>
+
+</head>
+<body>
+    <div class="container">
+        <h1>최고의 파트너 물범찾기!</h1>
+        
+        <div id="chat-window">
+          <div id="start-message">아무 버튼이나 눌러주세요</div>    
+      </div>
+      
+        <div id="user-input-container">
+            <div class="loader" id="loader" style="display: none;"></div>
+            <div class="button-container">
+                <button class="button" onclick="sendButton('a')">A</button>
+                <button class="button" onclick="sendButton('b')">B</button>
+                <button class="button" onclick="sendButton('c')">C</button>
+                <button class="button" onclick="sendButton('d')">D</button>
+                <button class="button" onclick="sendButton('e')">E</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatWindow = document.getElementById('chat-window');
+        let usersay = [];
+        let chatsay = [];
+        let seal_type;
+      
+        async function PersonalityTest(userText) {
+          try {
+            const response = await fetch('http://localhost:3000/personalitytest', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                userInput: userText,
+                usersay: usersay,
+                chatsay: chatsay,
+                seal_type:seal_type
+              })
+            });
+      
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+      
+            const data = await response.json();
+            console.log(data);
+      
+            return data;
+          } catch (error) {
+            console.error('Error:', error);
+            throw error;
+          }
+        }
+      
+        function disableButtons() {
+          const buttons = document.querySelectorAll('.button');
+          buttons.forEach(button => {
+            button.disabled = true;
+          });
+        }
+      
+        function enableButtons() {
+          const buttons = document.querySelectorAll('.button');
+          buttons.forEach(button => {
+            button.disabled = false;
+          });
+        }
+      
+        function sendButton(choice) {
+          const userDiv = document.createElement('div');
+          userDiv.classList.add('message', 'user-message');
+          const messageBubble = document.createElement('div');
+          messageBubble.classList.add('message-bubble');
+          messageBubble.textContent = choice;
+          userDiv.appendChild(messageBubble);
+          chatWindow.appendChild(userDiv);
+      
+          usersay.push(choice);
+      
+          const loader = document.getElementById('loader');
+          loader.style.display = 'block';
+          disableButtons();
+      
+          PersonalityTest(choice)
+            .then(data => {
+              let responseStr = data.assistant;
+              chatsay.push(data.assistant);
+      
+              if (responseStr.startsWith('감사합니다')) {
+                const botDiv = document.createElement('div');
+                botDiv.classList.add('message', 'bot-message');
+                const messageBubble = document.createElement('div');
+                messageBubble.classList.add('message-bubble');
+                messageBubble.textContent = responseStr;
+                botDiv.appendChild(messageBubble);
+                chatWindow.appendChild(botDiv);
+      
+                const sealTypeStartIndex = responseStr.indexOf('물범 이름은') + '물범 이름은'.length;
+                const sealTypeEndIndex = responseStr.indexOf('입니다!', sealTypeStartIndex);
+                seal_type = responseStr.slice(sealTypeStartIndex, sealTypeEndIndex).trim();
+
+                showSealTypeImage();
+              } else {
+                const askIndex = responseStr.indexOf('상황:');
+                const qIndex = responseStr.indexOf('(a)');
+      
+                const ask = responseStr.slice(askIndex, qIndex).trim();
+                const q = responseStr.slice(qIndex).split(/(?=\(\w\))/);
+      
+                const botDiv = document.createElement('div');
+                botDiv.classList.add('message', 'bot-message');
+                const messageBubble = document.createElement('div');
+                messageBubble.classList.add('message-bubble');
+                messageBubble.textContent = ask;
+                botDiv.appendChild(messageBubble);
+                chatWindow.appendChild(botDiv);
+      
+                q.forEach(option => {
+                  const optionDiv = document.createElement('div');
+                  optionDiv.classList.add('message', 'bot-message');
+                  const messageBubble = document.createElement('div');
+                  messageBubble.classList.add('message-bubble');
+                  messageBubble.textContent = option.trim();
+                  optionDiv.appendChild(messageBubble);
+                  chatWindow.appendChild(optionDiv);
+                });
+              }
+      
+              loader.style.display = 'none';
+              enableButtons();
+      
+              chatWindow.scrollTop = chatWindow.scrollHeight;
+              console.log(seal_type);
+            })
+            .catch(error => {
+              const errorDiv = document.createElement('div');
+              errorDiv.classList.add('message', 'bot-message');
+              const messageBubble = document.createElement('div');
+              messageBubble.classList.add('message-bubble');
+              messageBubble.textContent = error;
+              errorDiv.appendChild(messageBubble);
+              chatWindow.appendChild(errorDiv);
+      
+              loader.style.display = 'none';
+              enableButtons();
+
+            });
+        }
+      
+   
+      </script>
+</body>
+</html>
